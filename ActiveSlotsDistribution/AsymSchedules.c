@@ -457,15 +457,15 @@ void NDT(bd_t *bd1, bd_t *bd2)
 
         sortedArraySort(intersections);
 
-        /*
-        printf("This is the content of intersections after sorting: ");
-        for (int j = 0; j < sortedArrayLength(intersections); j++) {
-            printf("%u ", sortedArrayGet(intersections, j));
-        }*/
-        //printf("\n");
+        // printf("\n");
+        // printf("\tThis is the content of intersections after sorting: ");
+        // for (int j = 0; j < sortedArrayLength(intersections); j++) {
+        //     printf("%lu ", (unsigned long)sortedArrayGet(intersections, j));
+        // }
 
         // printf("Total intersections: %u\n", sortedArrayLength(intersections));
         sum = 0;
+        printf("\n\tDiffs = ");
         for (i = 0; i < sortedArrayLength(intersections); i++)
         {
 
@@ -486,6 +486,7 @@ void NDT(bd_t *bd1, bd_t *bd2)
             sum += ((diff - 1) * diff) / 2;
             // printf("sum = %lu\n", sum);
             // printf("Diff = %lu\n", diff);
+            printf("%lu ", diff-1);
             if (MTTR < diff)
             {
 
@@ -496,6 +497,7 @@ void NDT(bd_t *bd1, bd_t *bd2)
         sumOverAllOffsets += sum;
     }
 
+    printf("\n");
     printf(" %.6f %lu\n", (double)sumOverAllOffsets / v, MTTR);
     // fflush(stdout);
 }
@@ -510,11 +512,10 @@ int main()
     listOfBDs = readInput();
     numberOfBDs = arrayLength(listOfBDs);
 
-    printf("%s %s %s %s %s %s %s %s\n", "bd1-v", "bd2-v", "gcd", "dc1", "dc2", "asym-active", "ettr", "mttr");
-    for (i = 0; i < numberOfBDs - 1; i++) {
+    for (i = 0; i < numberOfBDs; i++) {
 
-        // This avoids evaluating pairs a second time since: NDT(s1,s2) == NDT(s2,s1)
-        for (j = i; j < numberOfBDs - 1; j++)
+        // This avoids evaluating duplicates since: NDT(s1,s2) == NDT(s2,s1)
+        for (j = i + 1; j < numberOfBDs; j++)
         {
             NDT(arrayGet(listOfBDs, i), arrayGet(listOfBDs, j));
         }
