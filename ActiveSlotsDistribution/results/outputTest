@@ -1,0 +1,24 @@
+pair1: bd1v:4 bd2v:4 gcd:4 dc1:0.750000 dc2:0.750000
+	inactiveSlotsBtwIntersections: 0 0 1 
+	inactiveSlotsBtwIntersections: 0 2 
+	inactiveSlotsBtwIntersections: 1 1 
+	inactiveSlotsBtwIntersections: 0 2 
+	NTTR:0.562500 MTTR:3
+	IntersectionsCount:9 IntersectionsCount/v:0.562500
+	AVGinactiveInterval:0.222222 P90inactiveInterval:1.800000
+pair2: bd1v:4 bd2v:6 gcd:2 dc1:0.750000 dc2:0.666667
+	inactiveSlotsBtwIntersections: 0 0 2 2 3 
+	inactiveSlotsBtwIntersections: 0 0 1 1 1 1 1 
+	NTTR:0.708333 MTTR:4
+	IntersectionsCount:12 IntersectionsCount/v:0.500000
+	AVGinactiveInterval:0.416667 P90inactiveInterval:1.000000
+pair3: bd1v:6 bd2v:6 gcd:6 dc1:0.666667 dc2:0.666667
+	inactiveSlotsBtwIntersections: 0 0 1 1 
+	inactiveSlotsBtwIntersections: 0 4 
+	inactiveSlotsBtwIntersections: 1 1 1 
+	inactiveSlotsBtwIntersections: 2 2 
+	inactiveSlotsBtwIntersections: 1 1 1 
+	inactiveSlotsBtwIntersections: 0 4 
+	NTTR:0.944444 MTTR:5
+	IntersectionsCount:16 IntersectionsCount/v:0.444444
+	AVGinactiveInterval:0.250000 P90inactiveInterval:3.600000
