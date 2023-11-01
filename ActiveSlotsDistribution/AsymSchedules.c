@@ -386,6 +386,39 @@ unsigned int gcd(unsigned a, unsigned int b)
     return (gcd(b, a % b));
 }
 
+double calculatePercentileWithInterpolation(sortedArray_t *array, double percentile) {
+    if (array == NULL || array->length <= 0 || percentile < 0 || percentile > 100) {
+        return 0.0; // Entrada inválida
+    }
+
+    double position = (percentile / 100.0) * (array->length - 1);
+    
+    // Verifique se a posição é um número inteiro
+    if (position == (int)position) {
+        return array->values[(int)position];
+    } else {
+        // Interpole o valor na posição
+        int lowerIndex = (int)position;
+        int upperIndex = lowerIndex + 1;
+        double lowerValue = array->values[lowerIndex];
+        double upperValue = array->values[upperIndex];
+        double fraction = position - lowerIndex;
+        return lowerValue + fraction * (upperValue - lowerValue);
+    }
+}
+
+double calculatePercentile(sortedArray_t *array, double percentile) {
+    if (array == NULL || array->length <= 0 || percentile < 0 || percentile > 100) {
+        return 0.0; // Entrada inválida
+    }
+
+    int position = (int)((percentile / 100.0) * (array->length - 1));
+
+    // Retorne o valor no índice correspondente ao percentil
+    return array->values[position];
+}
+
+
 void NDT(bd_t *bd1, bd_t *bd2)
 {
 
@@ -398,8 +431,8 @@ void NDT(bd_t *bd1, bd_t *bd2)
     unsigned int s;
     uint64_t sAbs;
     uint64_t currentIntersection, nextIntersection;
-    uint64_t sum, diff, sumOverAllOffsets;
-    sortedArray_t *intersections;
+    uint64_t sum, diff, sumOverAllOffsets, sumInactiveIntervals;
+    sortedArray_t *intersections, *inactiveIntervals;
 
     g = gcd(bd1->v, bd2->v);
 
@@ -465,6 +498,9 @@ void NDT(bd_t *bd1, bd_t *bd2)
 
         // printf("Total intersections: %u\n", sortedArrayLength(intersections));
         sum = 0;
+        sumInactiveIntervals = 0;
+        inactiveIntervals = sortedArrayNew();
+
         printf("\n\tDiffs = ");
         for (i = 0; i < sortedArrayLength(intersections); i++)
         {
@@ -484,9 +520,12 @@ void NDT(bd_t *bd1, bd_t *bd2)
             }
 
             sum += ((diff - 1) * diff) / 2;
+            sumInactiveIntervals += diff-1;
             // printf("sum = %lu\n", sum);
             // printf("Diff = %lu\n", diff);
             printf("%lu ", diff-1);
+            sortedArrayAdd(&inactiveIntervals, diff-1);
+
             if (MTTR < diff)
             {
 
@@ -495,9 +534,18 @@ void NDT(bd_t *bd1, bd_t *bd2)
         }
 
         sumOverAllOffsets += sum;
+
+        sortedArraySort(inactiveIntervals);
+        // printf("\n");
+        // printf("\tThis is the content of inactiveIntervals after sorting: ");
+        // for (int j = 0; j < sortedArrayLength(inactiveIntervals); j++) {
+        //     printf("%lu ", sortedArrayGet(inactiveIntervals, j));
+        // }
+        // printf("\n");
+        printf("\n\tDiffs P90 = %.3f\n", calculatePercentileWithInterpolation(inactiveIntervals, 90.0));
+        printf("\tDiffs avg = %.6f\n", (double)sumInactiveIntervals / v);
     }
 
-    printf("\n");
     printf(" %.6f %lu\n", (double)sumOverAllOffsets / v, MTTR);
     // fflush(stdout);
 }
