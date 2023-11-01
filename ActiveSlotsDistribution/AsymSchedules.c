@@ -418,7 +418,6 @@ double calculatePercentile(sortedArray_t *array, double percentile) {
     return array->values[position];
 }
 
-
 void NDT(bd_t *bd1, bd_t *bd2)
 {
 
@@ -431,7 +430,7 @@ void NDT(bd_t *bd1, bd_t *bd2)
     unsigned int s;
     uint64_t sAbs;
     uint64_t currentIntersection, nextIntersection;
-    uint64_t sum, diff, sumOverAllOffsets, sumInactiveIntervals;
+    uint64_t sum, diff, sumOverAllOffsets, sumInactiveIntervals, intersectionsCount;
     sortedArray_t *intersections, *inactiveIntervals;
 
     g = gcd(bd1->v, bd2->v);
@@ -443,13 +442,14 @@ void NDT(bd_t *bd1, bd_t *bd2)
         DutyCycle schedule one
         DutyCycle schedule two
     */
-    printf("%d %d %d %.6f %.6f", bd1->v, bd2->v, g, bd1->k / (double)bd1->v, bd2->k / (double)bd2->v);
+    printf("bd1v:%d bd2v:%d gcd:%d dc1:%.6f dc2:%.6f", bd1->v, bd2->v, g, bd1->k / (double)bd1->v, bd2->k / (double)bd2->v);
 
     MTTR = 0;
     sumOverAllOffsets = 0;
     v = ((uint64_t)bd1->v) * bd2->v;
     // printf("sAbs = %lu, v = %lu\n", sAbs, v);
     intersections = sortedArrayNew();
+    intersectionsCount = 0;
     for (o = 0; o < g; o++)
     {
 
@@ -478,7 +478,7 @@ void NDT(bd_t *bd1, bd_t *bd2)
         if (sortedArrayLength(intersections) == 0)
         {
 
-            printf(" inf inf\n");
+            printf(" inf inf 0 0\n");
             return;
         }
         /*
@@ -500,8 +500,9 @@ void NDT(bd_t *bd1, bd_t *bd2)
         sum = 0;
         sumInactiveIntervals = 0;
         inactiveIntervals = sortedArrayNew();
+        intersectionsCount += sortedArrayLength(intersections);
 
-        printf("\n\tDiffs = ");
+        // printf("\n\tDiffs = ");
         for (i = 0; i < sortedArrayLength(intersections); i++)
         {
 
@@ -523,7 +524,9 @@ void NDT(bd_t *bd1, bd_t *bd2)
             sumInactiveIntervals += diff-1;
             // printf("sum = %lu\n", sum);
             // printf("Diff = %lu\n", diff);
-            printf("%lu ", diff-1);
+            
+            // printf("%lu ", diff-1);
+
             sortedArrayAdd(&inactiveIntervals, diff-1);
 
             if (MTTR < diff)
@@ -536,20 +539,36 @@ void NDT(bd_t *bd1, bd_t *bd2)
         sumOverAllOffsets += sum;
 
         sortedArraySort(inactiveIntervals);
-        // printf("\n");
-        // printf("\tThis is the content of inactiveIntervals after sorting: ");
-        // for (int j = 0; j < sortedArrayLength(inactiveIntervals); j++) {
-        //     printf("%lu ", sortedArrayGet(inactiveIntervals, j));
-        // }
-        // printf("\n");
-        printf("\n\tDiffs P90 = %.3f\n", calculatePercentileWithInterpolation(inactiveIntervals, 90.0));
-        printf("\tDiffs avg = %.6f\n", (double)sumInactiveIntervals / v);
+        
+        printf("\n\tinactiveSlotsBtwIntersections: ");
+        for (int j = 0; j < sortedArrayLength(inactiveIntervals); j++) {
+            printf("%lu ", sortedArrayGet(inactiveIntervals, j));
+        }
+        
+        // printf("\n\tDiffs P90 = %.3f\n", calculatePercentileWithInterpolation(inactiveIntervals, 90.0));
+        // printf("\tDiffs avg = %.6f\n", (double)sumInactiveIntervals / v);
     }
 
-    printf(" %.6f %lu\n", (double)sumOverAllOffsets / v, MTTR);
+    double p90i = calculatePercentileWithInterpolation(inactiveIntervals, 90.0);
+
+    // NTTR AVG-NDT | MTTR MAX-NDT
+    printf("\n\tNTTR:%.6f MTTR:%lu", (double)sumOverAllOffsets / v, MTTR);
+
+    // Count of total encounter oportunities
+    printf("\n\tIntersectionsCount:%lu IntersectionsCount/v:%.6f", intersectionsCount, (double)intersectionsCount/v);
+
+    // Average inactive slots between encounter oportunities | P90 of inactive slots between encounter oportunities 
+    printf("\n\tAVGinactiveInterval:%.6f P90inactiveInterval:%.6f", (double)sumInactiveIntervals / intersectionsCount, p90i);
+
+    printf("\n");
     // fflush(stdout);
 }
 
+
+// Contar numero de oportunidades de encontro e dividir pelo tamanho dos escalanomantos multiplicados ("n de oportunidade por slot")
+// Ao inves de gerar as medias gerar uma lista de amostras
+
+// Ter a informacao de numero de oportunidades e distancias
 int main()
 {
 
@@ -563,8 +582,9 @@ int main()
     for (i = 0; i < numberOfBDs; i++) {
 
         // This avoids evaluating duplicates since: NDT(s1,s2) == NDT(s2,s1)
-        for (j = i + 1; j < numberOfBDs; j++)
+        for (j = i; j < numberOfBDs; j++)
         {
+            printf("pair%u: ", i+j+1);
             NDT(arrayGet(listOfBDs, i), arrayGet(listOfBDs, j));
         }
     }
